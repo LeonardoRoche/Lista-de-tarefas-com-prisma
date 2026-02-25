@@ -1,65 +1,250 @@
-import Image from "next/image";
+"use client";
+import EditTask from "@/components/edit-task";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { ListCheck, LoaderCircle, Plus, Sigma, Trash } from "lucide-react";
+
+import { getTasks } from "@/actions/get-taks-from-bd";
+import { useEffect, useState } from "react";
+import { Task } from "@/generated/prisma";
+import { NewTask } from "@/actions/add-task";
+import { deleteTask } from "@/actions/delete-task";
+import { toast } from "sonner";
+import Filter, { filterType } from "@/components/filter";
+import { clearCompletedTasks } from "@/actions/clear-completed-tasks";
+import { updateTaskStatus } from "@/actions/toogle-done";
 
 export default function Home() {
+  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [task, setTask] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [currentFielter, setCurrentFilter] = useState<filterType>("all");
+  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+
+  const handleGetTasks = async () => {
+    try {
+      const tasks = await getTasks();
+      if (!tasks) return;
+      setTaskList(tasks);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleAddTask = async () => {
+    setLoading(true);
+    try {
+      if (task.length === 0 || !task) {
+        toast.error("Insira uma atividade para cadastrar!");
+        setLoading(false);
+        return;
+      }
+
+      const myNewTask = await NewTask(task);
+
+      if (!myNewTask) return;
+
+      toast.success("Tarefa criada com sucesso!");
+
+      setTask("");
+      await handleGetTasks();
+    } catch (error) {
+      throw error;
+    }
+    setLoading(false);
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      if (!id) return;
+      await deleteTask(id);
+      toast.success("Tarefa deletada com sucesso!");
+      await handleGetTasks();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleToogleTask = async (taskid: string) => {
+    const previousTasks = [...taskList];
+    try {
+      setTaskList((prev) => {
+        const updatedTaskList = prev.map((task) => {
+          if (task.id === taskid) {
+            return {
+              ...task,
+              done: !task.done,
+            };
+          } else {
+            return task;
+          }
+        });
+        return updatedTaskList;
+      });
+
+      const updatedTask = await updateTaskStatus(taskid);
+      if (!updatedTask) {
+        throw new Error("Falha ao atualizar o status da tarefa");
+      }
+    } catch (error) {
+      setTaskList(previousTasks);
+      toast.error("Não foi possível atualizar o status da tarefa");
+      throw error;
+    }
+  };
+
+  const handleClearCompletedTasks = async () => {
+    await clearCompletedTasks();
+    toast.success("Tarefas concluídas limpas com sucesso!");
+    await handleGetTasks();
+  };
+
+  useEffect(() => {
+    handleGetTasks();
+  }, []);
+
+  useEffect(() => {
+    switch (currentFielter) {
+      case "all":
+        setFilteredTasks(taskList);
+        break;
+      case "pending":
+        const pedingTasks = taskList.filter((task) => !task.done);
+        setFilteredTasks(pedingTasks);
+        break;
+      case "completed":
+        const completedTasks = taskList.filter((task) => task.done);
+        setFilteredTasks(completedTasks);
+        break;
+      default:
+        setFilteredTasks(taskList);
+    }
+  }, [currentFielter, taskList]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="bg-gray-300 w-full h-screen flex items-center justify-center">
+      <Card className="w-lg p-4">
+        <CardHeader className="flex gap-2">
+          <Input
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+            placeholder="Adicionar tarefa"
+            className="cursor-pointer"
+          />
+          <Button onClick={handleAddTask} className="cursor-pointer">
+            {loading ? <LoaderCircle className="animate-spin" /> : <Plus />}
+            Cadastrar
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <Separator className="mb-4" />
+          <Filter
+            currentFielter={currentFielter}
+            setCurrentFilter={setCurrentFilter}
+          />
+          <div className="mt-4 border-b">
+            {filteredTasks.length === 0 && (
+              <p className="text-xs border-t py-4">
+                Você não possui atividades cadastradas
+              </p>
+            )}
+            {filteredTasks.map((task) => (
+              <div
+                key={task.id}
+                className="h-14 flex justify-between items-center border-t "
+              >
+                <div
+                  className={`${task.done ? "bg-green-300" : "bg-red-300"} w-1 h-full`}
+                ></div>
+                <p
+                  className="px-2 flex-1 text-sm cursor-pointer hover:scale-95 transition-all duration-300 hover:text-gray-700"
+                  onClick={() => handleToogleTask(task.id)}
+                >
+                  {task.task}
+                </p>
+                <div className="flex gap-2 px-2 items-center">
+                  <EditTask task={task} handleGetTasks={handleGetTasks} />
+
+                  <Trash
+                    size={16}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handleDeleteTask(task.id);
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex items-center gap-2">
+              <ListCheck size={16} />
+              <p className="text-xs">
+                Tarefas concluídas{" "}
+                {filteredTasks.filter((task) => task.done).length} /{" "}
+                {filteredTasks.length}
+              </p>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="cursor-pointer text-xs h-7"
+                >
+                  <Trash />
+                  Limpar tarefas concluídas
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Tem certeza que deseja excluir{" "}
+                    {filteredTasks.filter((task) => task.done).length} itens?
+                  </AlertDialogTitle>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    onClick={handleClearCompletedTasks}
+                    className="cursor-pointer"
+                  >
+                    Sim
+                  </AlertDialogCancel>
+                  <AlertDialogAction className="cursor-pointer">
+                    Cancelar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+
+          <div className="h-2 w-full bg-gray-100 mt-4 rounded-md">
+            <div
+              className="h-full  bg-blue-500 rounded-md"
+              style={{
+                width: `${(filteredTasks.filter((task) => task.done).length / filteredTasks.length) * 100}%`,
+              }}
+            ></div>
+          </div>
+
+          <div className="flex justify-end items-center mt-2 gap-2">
+            <Sigma size={16} className="cursor-pointer" />
+            <p className="text-xs">{filteredTasks.length} tarefas no total</p>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
