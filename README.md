@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nome do Projeto
 
-## Getting Started
+Lista de tarefas
 
-First, run the development server:
+## 📋 Sobre o Projeto
+
+Foi utilizado Tailwind Css e React para a criação do projeto, utilizando-se duas libs, sendo ela: ShadeCn e Prisma para componentização de UI e Prisma para controle do postgresql. O projeto se consiste em uma criação de lista de tarefas, tendo integração total no projeto
+
+## ✨ Funcionalidades
+
+- [x] Filtragem de tarefas
+- [x] Criação de tarefas
+- [x] Exclusão de tarefas
+- [x] Edição de tarefas
+- [x] Filtragem de tarefas
+- [x] Barra de progresso
+- [x] Integração com API
+
+## 🚀 Tecnologias
+
+Este projeto foi desenvolvido com as seguintes tecnologias:
+
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Prisma](https://www.prisma.io/)
+
+## 📦 Pré-requisitos
+
+Antes de começar, você vai precisar ter instalado em sua máquina:
+
+- [Node.js](https://nodejs.org/en/) (v24.13.1)
+- [Postgree](https://www.postgresql.org/)
+- [Prisma](https://www.prisma.io/)
+- [npm](https://www.npmjs.com/) ou [yarn](https://yarnpkg.com/)
+
+## 🔧 Instalação
+
+```bash
+git clone [https://github.com/LeonardoRoche/Lista-de-tarefas-com-prisma]
+
+cd [Lista-de-tarefas]
+
+npm install
+
+yarn install
+```
+
+## 🎮 Como usar
 
 ```bash
 npm run dev
-# or
+
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📂 Estrutura de Pastas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+├── components/       # Componentes React reutilizáveis
+├── lib/             # Utilitários e serviços
+├── public/          # Arquivos estáticos
+├── src/             # Código fonte da aplicação
+│   └── app/         # Rotas e páginas Next.js
+└── ...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 👤 Autor
 
-## Learn More
+**[Leonardo Roche Lima]**
 
-To learn more about Next.js, take a look at the following resources:
+- GitHub: [@LeonardoRoche](https://github.com/LeonardoRoche)
+- LinkedIn: [@Leonardo Roche](https://www.linkedin.com/in/leonardoroche/)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📧 Contato
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Para mais informações, entre em contato através de [Leonardo.roche05@gmail.com]
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Feito com ❤️ por Leonardo Roche Lima
